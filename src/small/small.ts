@@ -66,10 +66,10 @@ type MulRec<X extends Nat, Y extends Nat, Z extends Nat> = {
  * Div<NN<1>, Zero> = Zero
  * Div<Zero, NN<5>> = Zero
  */
-export type Div<X extends Nat, Y extends Nat> = If<IsZero<Y>, Zero, DivRec<X, Y, Zero>>;
-type DivRec<X extends Nat, Y extends Nat, Z extends Nat> = {
-  0: Sub<X, Y> extends infer NewX ? DivRec<CastNat<NewX>, Y, Inc<Z>> : never;
-  1: Z;
+export type Div<X extends Nat, Y extends Nat> = If<IsZero<Y>, Zero, DivRec<X, Y>>;
+type DivRec<X extends Nat, Y extends Nat> = {
+  0: Sub<X, Y> extends infer NewX ? Inc<DivRec<CastNat<NewX>, Y>> : never;
+  1: Zero;
 }[If<IsLT<X, Y>, 1, 0>];
 
 /**
@@ -80,11 +80,12 @@ type DivRec<X extends Nat, Y extends Nat, Z extends Nat> = {
  * Mod<NN<1>, Zero> = NN<1>
  * Mod<Zero, NN<5>> = Zero
  */
-export type Mod<X extends Nat, Y extends Nat> = If<IsZero<Y>, X, ModRec<X, Y>>;
-type ModRec<X extends Nat, Y extends Nat> = {
-  0: Sub<X, Y> extends infer NewX ? ModRec<CastNat<NewX>, Y> : never;
-  1: X;
-}[If<IsLT<X, Y>, 1, 0>];
+export type Mod<X extends Nat, Y extends Nat> = ModRec<X, Y>;
+type ModRec<X extends Nat, Y extends Nat> = Div<X, Y> extends infer D
+  ? Mul<CastNat<D>, Y> extends infer M
+    ? Sub<X, CastNat<M>>
+    : never
+  : never;
 
 /**
  * Returns true if X is even, otherwise false.
