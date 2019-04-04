@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "lint:fix": "tslint --fix --project tsconfig.json",
+    "lint:check-unused": "tslint --project tsconfig-check-unused.json"
+  },
+  "devDependencies": {
+    "tslint": "^5.13.1",
+    "tslint-config-standard": "^8.0.1",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "3.3.4000"
+  }
+}

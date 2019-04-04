@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "tslint-config-standard"
+  ],
+  "rules": {
+    "semicolon": [true, "always"],
+    "object-curly-spacing": [true, "never"],
+    "no-duplicate-imports": [true, {"allow-namespace-imports": true}]
+  }
+}
