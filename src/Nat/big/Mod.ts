@@ -1,6 +1,7 @@
 import {Nat, Zero} from '../Nat';
+import {If, And} from '../Logic';
 import {IsZero, IsEq, IsLT, Dec} from '../unsafe';
-import {If, And, IsMaxDepth, DecNum} from '../helpers';
+import {IsMaxDepth, DecNum} from '../helpers';
 import {DEFAULT_RECURSIVE_DEPTH} from './constants';
 
 /**

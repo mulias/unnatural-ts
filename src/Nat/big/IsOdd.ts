@@ -1,5 +1,5 @@
 import {Nat} from '../Nat';
-import {Not} from '../helpers';
+import {Not} from '../Logic';
 import {IsEven} from './IsEven';
 import {DEFAULT_RECURSIVE_DEPTH} from './constants';
 

@@ -4,13 +4,6 @@ export type Cast<X, Y> = X extends Y ? X : Y;
 
 export type CastNat<X> = X extends Nat ? X : Nat;
 
-export type And<X, Y> = X extends true ? (Y extends true ? true : false) : false;
-
-export type Or<X, Y> = X extends true ? true : Y extends true ? true : false;
-
-export type Not<X extends boolean> = X extends true ? false : true;
-
-export type If<Test extends boolean, Then, Else> = Test extends true ? Then : Else;
 
 export type IsMaxDepth<N extends number> = N extends 0 ? true : false;
 

@@ -1,6 +1,7 @@
 import {Nat, Zero} from '../Nat';
+import {If, Or, Not} from '../Logic';
 import {Size, Inc, Dec, IsZero, IsLT, IsGTE, NatToString} from '../unsafe';
-import {CastNat, Or, Not, If} from '../helpers';
+import {CastNat} from '../helpers';
 
 /**
  * Construct a Nat representation of a number literal type.

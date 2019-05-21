@@ -1,8 +1,9 @@
 import {
   Zero, Inc, IsSize, IsEq, Max, Min, NN, Add, Sub, Mul, Div, Mod,
   IsEven, IsOdd, NumsInRange, Indices, StringToNat, TupleGTE
-} from '../src/small';
-import {Assert, IsUnknown, IsNever, IsExact} from './helpers';
+} from '../src/Nat/small';
+import {Assert} from '../src/Assert';
+import {IsUnknown, IsNever, IsExact} from '../src/Compare';
 
 type NN1 = NN<1>;
 type NN2 = NN<2>;
