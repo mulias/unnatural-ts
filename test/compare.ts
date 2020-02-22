@@ -33,6 +33,8 @@ type T032 = Assert<IsExact<any, boolean>, false>;
 type T033 = Assert<IsExact<'a', 'a' | 'b'>, false>;
 type T034 = Assert<IsExact<0 | 1, 0 | 1>, true>;
 type T035 = Assert<IsExact<any, any | number>, true>;
+type T036 = Assert<IsExact<boolean, true>, false>;
+type T037 = Assert<IsExact<false, boolean>, false>;
 
 // IsAny
 type T040 = Assert<IsAny<any>, true>;
@@ -57,4 +59,3 @@ type T062 = Assert<IsUnknown<never>, false>;
 type T063 = Assert<IsNever<IsUnknown<never>>, false>;
 type T064 = Assert<IsUnknown<number>, false>;
 type T065 = Assert<IsUnknown<unknown | string>, true>;
-

@@ -1,5 +1,6 @@
 import {Cast} from './helpers';
 import {If, Not, And, Or} from './Logic';
+import {Key, EmptyObject, SetProp} from './Object';
 
 export type RemoveUndefined<T> = { [t in keyof T]: Exclude<T[t], undefined> };
 
@@ -444,10 +445,12 @@ type FindRec<U, T extends Tuple, Default> = {
 /**
  * Recursive type with depth `Length<T>`.
  */
-type FromPairs<T extends NonEmptyTuple<[Key, any]>> =
-  FromPairs<Tail<T>, Record<Head<T>[0], Head<T>[1]>>;
+type FromPairs<T extends Tuple<[Key, any]>> =
+  If<IsEmpty<T>,
+     EmptyObject,
+     Head<T> extends [infer K, infer V] ? FromPairsRec<Tail<T>, {[k in Cast<K, Key>]: V}> : never>;
 
 type FromPairsRec<T extends Tuple<[Key, any]>, R extends Record<Key, any>> = {
-  0: FromPairsRec<Tail<T>, SetProp<Head<T>[0], Head<T>[1], R>>;
-  1: U;
+  0: Head<T> extends [infer K, infer V] ? FromPairsRec<Tail<T>, SetProp<Cast<K, Key>, V, R>>: never;
+  1: R;
 }[If<IsEmpty<T>, 1, 0>];

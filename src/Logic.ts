@@ -1,4 +1,5 @@
-import {Tuple, Find, All, Any} from './Tuple';
+import {Tuple, Find} from './Tuple';
+import {AllExtend, AnyExtend} from './Object';
 
 /**
  * Types for operating on the `true`/`false` boolean literal values.
@@ -41,10 +42,10 @@ export type Cond<T extends Tuple<[boolean, any]>> =
  * Given a tuple `T` of booleans, return true if all are true, otherwise return
  * false.
  */
-export type AllPass<T extends Tuple<boolean>> = All<true, T>;
+export type AllPass<T extends Tuple<boolean>> = AllExtend<true, T>;
 
 /**
  * Given a tuple `T` of booleans, return true if at least one is true,
  * otherwise return false.
  */
-export type AnyPass<T extends Tuple<boolean>> = Any<true, T>;
+export type AnyPass<T extends Tuple<boolean>> = AnyExtend<true, T>;

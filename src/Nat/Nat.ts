@@ -1,5 +1,5 @@
-import {Cast} from './helpers';
-import {Not, If} from './Logic';
+import {Cast} from '../helpers';
+import {Not, If} from '../Logic';
 
 /**
  * Natural numbers are represented as tuples with known length and arbitrary

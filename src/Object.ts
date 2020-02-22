@@ -1,3 +1,9 @@
+import {UnionToTuple} from './Union';
+import {If, Or, Not} from './Logic';
+import {IsExtension, IsExact} from './Compare';
+import {Tuple, NonEmptyTuple, EmptyTuple, Head, Tail, TupleKeys, IsEmpty, Prepend} from './Tuple';
+import {Cast} from './helpers';
+
 /**
  * Types for operating on indexable/mappable objects, including records,
  * tuples, and arrays.
@@ -14,9 +20,17 @@ export type Key = string | number | symbol;
 export type Dict<V = any> = Record<Key, V>;
 
 /**
- * Get the keys of `T`, alias for the `keyof` operator.
+ * An object that can't have any values.
  */
-export type KeysOf<T> = keyof T;
+export type EmptyObject = Dict<never>;
+
+/**
+ * Similar to `keyof T`, but without some confusing behavior.
+ */
+export type Indices<T> =
+  T extends Tuple ? TupleKeys<T>
+  : T extends any[] ? number
+  : keyof T;
 
 /**
  * Return a tuple containing all the members of `keyof T` in an unspecified
@@ -25,10 +39,9 @@ export type KeysOf<T> = keyof T;
 export type KeysTuple<T> = UnionToTuple<keyof T>;
 
 /**
- *
- * Get a union of the types of the props of `T`.
+ * Returns a union of the types of the props of `T`.
  */
-export type Values<T> = T[keyof T];
+export type Values<T> = T[Cast<Indices<T>, keyof T>];
 
 /**
  * Return the prop type for the key `K` in `T`.
@@ -56,7 +69,7 @@ export type MapExtract<E, T> = {[K in keyof T]: Extract<T[K], E>};
  * If `T` has a prop with key `P`, change the prop type to `E`. If `T` does not
  * yet have a prop with key `P`, add it with type `E`.
  */
-export type SetProp<P, E, T> = {[K in P | keyof T]:
+export type SetProp<P extends Key, E, T> = {[K in P | keyof T]:
   K extends P ? E :
   K extends keyof T ? T[K] :
   never
@@ -65,7 +78,7 @@ export type SetProp<P, E, T> = {[K in P | keyof T]:
 /**
  * Set all prop types in `T` to `E`.
  */
-export type SetAll<E, T> = {[k in T]: E};
+export type SetAll<E, T> = {[k in keyof T]: E};
 
 /**
  * Merge the objects `T` and `U`. If a key appears in both, the value of `U`
@@ -91,12 +104,12 @@ type MergeAllRec<T extends Tuple, R> = {
 /**
  * Returns true if `E` extends at least one prop in `T`.
  */
-export type AnyExtend<E, T> = IsExtension<E, T[keyof T]>;
+export type AnyExtend<E, T> = IsExtension<E, Values<T>>;
 
 /**
  * Returns true if `E` extends all prop in `T`.
  */
-export type AllExtend<E, T> = IsExact<E, T[keyof T]>;
+export type AllExtend<E, T> = IsExact<E, Values<T>>;
 
 /**
  * Returns true if `E` does not extend any of the prop in `T`.
@@ -134,14 +147,16 @@ export type Invert<T extends Record<Key, Key>> =
     : never;
 
 /**
- * Return a tuple containing 
+ * Return a tuple containing
  * Recursive type with depth `UnionSize<keyof T>`.
  */
 export type ToPairs<T> =
-  KeysTuple<T> extends infer KeysT ? ToPairsRec<T, KeysT, EmptyTuple> : never;
+  KeysTuple<T> extends infer KeysT
+  ? ToPairsRec<T, Cast<KeysT, Tuple<keyof T>>, EmptyTuple>
+  : never;
 
-type ToPairsRec<T, KeysT extends Tuple<Key>, R extends Tuple> = {
-  0: ToPairsRec<T, Tail<KeysT>, Prepend<[Head<KeysT>, T[Head<KeysT>]], R>>;
+type ToPairsRec<T, KeysT extends Tuple<keyof T>, R extends Tuple> = {
+  0: ToPairsRec<T, Tail<KeysT>, Prepend<[Head<KeysT>, T[Cast<Head<KeysT>, keyof T>]], R>>;
   1: R;
 }[If<IsEmpty<KeysT>, 1, 0>];
 
@@ -163,7 +178,7 @@ export type StrictTraversal<Path extends Tuple<Key>, T> = {
  * `Length<Path>`.
  */
 export type Traversal<Path extends Tuple<Key>, T> = {
-  0: Traversal<Tail<Path>, MaybeProp<Head<Path>, T>>;
+  0: Traversal<Tail<Path>, MaybeProp<Cast<Head<Path>, Key>, T>>;
   1: T;
 }[If<Or<IsExact<T, never>, IsEmpty<Path>>, 1, 0>];
 
@@ -171,6 +186,6 @@ export type Traversal<Path extends Tuple<Key>, T> = {
  * Recursive type with depth `Length<Path>`.
  */
 export type ObjectWithStrictPath<Path extends Tuple<Key>> = {
-  0: {[k in Head<Path>]: ObjectWithStrictPath<Tail<Path>>};
+  0: {[k in Cast<Head<Path>, Key>]: ObjectWithStrictPath<Tail<Path>>};
   1: any;
 }[If<IsEmpty<Path>, 1, 0>];

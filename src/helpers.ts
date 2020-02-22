@@ -1,9 +1,8 @@
-import {Nat} from './Nat';
+import {Nat} from './Nat/Nat';
 
 export type Cast<X, Y> = X extends Y ? X : Y;
 
 export type CastNat<X> = X extends Nat ? X : Nat;
-
 
 export type IsMaxDepth<N extends number> = N extends 0 ? true : false;
 

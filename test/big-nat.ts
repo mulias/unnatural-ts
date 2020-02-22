@@ -1,7 +1,7 @@
 import {
   Nat, Zero, Size, Inc, Dec, IsSize, IsEq, Max, Min, NN, Add, Sub, Mul,
   Div, Mod, IsEven, IsOdd, NumsInRange, Indices, StringToNat, TupleGTE
-} from '../src/big';
+} from '../src/Nat/big';
 import {Assert} from '../src/Assert';
 import {IsUnknown, IsNever, IsExact} from '../src/Compare';
 
