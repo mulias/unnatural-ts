@@ -1,42 +1,42 @@
-import {Nat, Zero, One} from '../Nat';
-import {IsZero, IsLT, Inc, Dec} from '../unsafe';
-import {If, IsMaxDepth, DecNum} from '../helpers';
+import {Nat, Zero} from '../Nat';
+import {If, And} from '../../Logic';
+import {IsZero, IsEq, IsLT, Dec} from '../unsafe';
+import {IsMaxDepth, DecNum} from '../../helpers';
 import {DEFAULT_RECURSIVE_DEPTH} from './constants';
 
 /**
- * Calculate `X / Y` for two Nats. Both Nats must have a size less than or
- * equal to 256 or C*32. Dividing by Zero results in Zero.
+ * Calculate `X % Y` for two Nat. Both Nats must have a size less than or equal
+ * to 256 or C* 32. `X % 0` is X.
  *
- * Div<NN<5>, NN<3>> = NN<15>
- * Div<NN<1>, Zero> = Zero
- * Div<Zero, NN<5>> = Zero
- * Div<
+ * Mod<NN<5>, NN<3>> = NN<15>
+ * Mod<NN<1>, Zero> = Zero
+ * Mod<Zero, NN<5>> = Zero
+ * Mod<
  */
-export type Div<X extends Nat, Y extends Nat, C extends number = DEFAULT_RECURSIVE_DEPTH> =
-  If<IsZero<Y>, Zero,
-  If<IsLT<X, Y>, Zero,
-  Trampoline<[X, Y, Y, One], C>>>;
+export type Mod<X extends Nat, Y extends Nat, C extends number = DEFAULT_RECURSIVE_DEPTH> =
+  If<IsZero<Y>, X,
+  If<IsEq<X, Y>, Zero,
+  If<IsLT<X, Y>, X,
+  Trampoline<[X, Y, Y], C>>>>;
 
-/* Incremental recursion for Div.
+/* Incremental recursion for Mod.
  *
- * Prerequisites: For `X / Y`, Y must be greater than 0, X must be greater than Y.
+ * Prerequisites: For `X % Y`, Y must be greater than 0, X must be greater than Y.
  *
- * param Args: a tuple of Nats [X, YY, Y, Z] where:
- * - X starts as the dividend, but will be decremented during the calculation.
+ * param Args: a tuple of Nats [X, YY, Y] where:
+ * - X starts as the dividend, but is decremented during the calculation.
  * - YY is the divisor, and will not change between recursive calls.
  * - Y is the counter for the inner subtraction loop, starting at YY,
  *   decrementing to 0, then reseting.
- * - Z is the result, starting at 1 and counting up each time YY is fully
- *   subtracted from X.
  */
-type Bounce<Args, C extends number> = Args extends [infer X, infer YY, infer Y, infer Z] ?
+type Bounce<Args, C extends number> = Args extends [infer X, infer YY, infer Y] ?
   {
-    0: Bounce<[Dec<X>, YY, Dec<Y>, Z], DecNum<C>>;
-    1: Bounce<[Dec<X>, YY, Dec<YY>, Inc<Z>], DecNum<C>>;
-    2: {done: false; val: [X, YY, Y, Z]};
-    3: {done: true; val: Z};
+    0: Bounce<[Dec<X>, YY, Dec<Y>], DecNum<C>>;
+    1: Bounce<[Dec<X>, YY, Dec<YY>], DecNum<C>>;
+    2: {done: false; val: [X, YY, Y]};
+    3: {done: true; val: X};
   }[
-    If<IsLT<X, YY>, 3,
+    If<And<IsLT<X, YY>, IsZero<Y>>, 3,
     If<IsMaxDepth<C>, 2,
     If<IsZero<Y>, 1,
     0>>>

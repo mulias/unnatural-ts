@@ -1,35 +1,33 @@
-import {Zero} from '../Nat';
-import {Inc, NatToString} from '../unsafe';
-import {If, IsMaxDepth, DecNum} from '../helpers';
+import {Nat, Zero} from '../Nat';
+import {If, Or} from '../../Logic';
+import {IsZero, IsLTE, Dec} from '../unsafe';
+import {IsMaxDepth, DecNum} from '../../helpers';
 import {DEFAULT_RECURSIVE_DEPTH} from './constants';
 
 /**
- * Attempt to fine a Nat representation of the string S. Performs a linear
- * search starting with "0". If a match is not found in 256 or C*32 iterations
- * then the result is unknown.
+ * Calculate `X - Y` for two Nat. At least one Nat must have a size less than
+ * 256, or C*32.
  *
- * StringToNat<"0"> = Zero
- * StringToNat<"4"> = NN<4>
- * StringToNat<"not a num"> = unknown
+ * Sub<NN<4>, Zero> = NN<4>
+ * Sub<NN<10>, NN<4>> = NN<6>
+ * Sub<NN<128>, NN<128>> = Zero
  */
-export type StringToNat<S extends string, C extends number = DEFAULT_RECURSIVE_DEPTH> =
-  Trampoline<[S, Zero], C>;
+export type Sub<X extends Nat, Y extends Nat, C extends number = DEFAULT_RECURSIVE_DEPTH> =
+  If<IsLTE<X, Y>, Zero, Trampoline<[X, Y], C>>;
 
-/* Incremental recursion for StringToNat.
+/* Incremental recursion for Sub.
  *
- * param Args: a tuple [S, N] where:
- * - S is the target string and does not change between iterations.
- * - N is a Nat.
+ * param Args - a tuple of Nats [X, Y].
  */
-type Bounce<Args, C extends number> = Args extends [infer S, infer N] ?
+type Bounce<Args, C extends number> = Args extends [infer X, infer Y] ?
   {
-    0: Bounce<[S, Inc<N>], DecNum<C>>;
-    1: {done: false; val: [S, N]};
-    2: {done: true; val: N};
+    0: Bounce<[Dec<X>, Dec<Y>], DecNum<C>>;
+    1: {done: false; val: [X, Y]};
+    2: {done: true; val: X};
   }[
-    S extends NatToString<N> ? 2 :
+    If<Or<IsZero<X>, IsZero<Y>>, 2,
     If<IsMaxDepth<C>, 1,
-    0>
+    0>>
   ] : never;
 
 // ===== Recursive helpers =====//

@@ -1,5 +1,5 @@
 import * as Nat from './Nat';
-import {Cast, CastNat} from './helpers';
+import {Cast, CastNat} from '../helpers';
 
 /* Due to extensive use of `infer` to save temporary type variables, there are
  * many situations where type information about a type variable is lost in a

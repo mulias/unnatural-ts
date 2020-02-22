@@ -1,32 +1,36 @@
 import {Nat} from '../Nat';
-import {IsZero, Inc, Dec} from '../unsafe';
-import {If, IsMaxDepth, DecNum} from '../helpers';
+import {If} from '../../Logic';
+import {IsZero, IsGTE, Inc, Dec} from '../unsafe';
+import {IsMaxDepth, DecNum} from '../../helpers';
 import {DEFAULT_RECURSIVE_DEPTH} from './constants';
 
 /**
- * Construct a type that conforms to any tuple that is the same size as N or
- * larger. The size of N must be less than or equal to 256, or C*32. Note that
- * the resulting type is not a Nat, and will break if used as one.
+ * Add two Nats. At least one Nat must have a size less than or equal to 256
+ * or C*32.
  *
- * TupleGTE<NN<3>> = [any, any, any, ...any[]]
- * NN<5> extends TupleGTE<NN<3>> ? true : false = true
- * NN<2> extends TupleGTE<NN<3>> ? true : false = false
+ * Add<NN<4>, Zero> = NN<4>
+ * Add<NN<10>, NN<4>> = NN<14>
+ * Add<NN<128>, NN<128>> = NN<256>
+ *
+ * type NN200 = Add<NN<100>, NN<100>>
+ * Size<Add<NN<128>, NN200>> = 328
+ * Size<Add<NN200, NN<100>>> = 300
+ * Add<NN200, NN200> = unknown
  */
-export type TupleGTE<N extends Nat, C extends number = DEFAULT_RECURSIVE_DEPTH> =
-  If<IsZero<N>, Nat,
-  Trampoline<[Dec<N>, [any, ...any[]]], C>>;
+export type Add<X extends Nat, Y extends Nat, C extends number = DEFAULT_RECURSIVE_DEPTH> =
+  If<IsGTE<X, Y>, Trampoline<[X, Y], C>, Trampoline<[Y, X], C>>;
 
-/* Incremental recursion for TupleGTE.
+/* Incremental recursion for Add.
  *
- * param Args - a tuple [N, T] where N is a Nat and T is a generic tuple type.
+ * param Args - a tuple of Nats [X, Y].
  */
-type Bounce<Args, C extends number> = Args extends [infer N, infer T] ?
+type Bounce<Args, C extends number> = Args extends [infer X, infer Y] ?
   {
-    0: Bounce<[Dec<N>, Inc<T>], DecNum<C>>;
-    1: {done: false; val: [N, T]};
-    2: {done: true; val: T};
+    0: Bounce<[Inc<X>, Dec<Y>], DecNum<C>>;
+    1: {done: false; val: [X, Y]};
+    2: {done: true; val: X};
   }[
-    If<IsZero<N>, 2,
+    If<IsZero<Y>, 2,
     If<IsMaxDepth<C>, 1,
     0>>
   ] : never;
